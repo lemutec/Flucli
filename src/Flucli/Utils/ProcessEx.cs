@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,6 +69,49 @@ internal sealed class ProcessEx(ProcessStartInfo startInfo) : IDisposable
         }
     }
 
+    // Sends SIGINT
+    public void Interrupt()
+    {
+        if (!TryInterrupt())
+        {
+            Kill();
+            Debug.Fail("Failed to send an interrupt signal.");
+        }
+
+        bool TryInterrupt()
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    if (_nativeProcess.MainWindowHandle != IntPtr.Zero)
+                    {
+                        return _nativeProcess.CloseMainWindow();
+                    }
+
+                    // TODO: Find a way to send Ctrl+C to the console window
+                    return true;
+                }
+
+                // On Unix, we can just send the signal to the process directly
+                if (
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                )
+                {
+                    return NativeMethods.Unix.Kill(_nativeProcess.Id, 2) == 0;
+                }
+
+                // Unsupported platform
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
     // Sends SIGKILL
     public void Kill()
     {
@@ -94,4 +138,30 @@ internal sealed class ProcessEx(ProcessStartInfo startInfo) : IDisposable
     }
 
     public void Dispose() => _nativeProcess.Dispose();
+}
+
+file static class NativeMethods
+{
+    public static class Windows
+    {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool FreeConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool AttachConsole(uint dwProcessId);
+
+        public delegate bool ConsoleCtrlDelegate(uint dwCtrlEvent);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate? handlerRoutine, bool add);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
+    }
+
+    public static class Unix
+    {
+        [DllImport("libc", EntryPoint = "kill", SetLastError = true)]
+        public static extern int Kill(int pid, int sig);
+    }
 }
