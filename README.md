@@ -1,4 +1,4 @@
-[![NuGet](https://img.shields.io/nuget/v/Flucli.svg)](https://nuget.org/packages/Flucli) [![GitHub license](https://img.shields.io/github/license/lemutec/Flucli)](https://github.com/lemutec/Flucli/blob/master/LICENSE.txt) [![Actions](https://github.com/lemutec/Flucli/actions/workflows/library.nuget.yml/badge.svg)](https://github.com/lemutec/Flucli/actions/workflows/library.nuget.yml)
+[![NuGet](https://img.shields.io/nuget/v/Flucli.svg)](https://nuget.org/packages/Flucli) [![GitHub license](https://img.shields.io/github/license/lemutec/Flucli)](https://github.com/lemutec/Flucli/blob/master/LICENSE) [![Actions](https://github.com/lemutec/Flucli/actions/workflows/library.nuget.yml/badge.svg)](https://github.com/lemutec/Flucli/actions/workflows/library.nuget.yml)
 
 # Flucli
 
