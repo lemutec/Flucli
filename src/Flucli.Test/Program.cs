@@ -8,20 +8,21 @@ internal class Program
     {
         Task.Run(async () =>
         {
-            byte[] array = new byte[100];
-            using MemoryStream ms = new(array);
+            StringBuilder stdout = new();
+            StringBuilder stderr = new();
 
             var command1 = "cmd"
-                .WithArguments("/c echo Hello");
+                .WithArguments("/c echo Hello World!");
 
             var command2 = "cmd"
-                .WithArguments("/c findstr H")
-                .WithStandardOutputPipe(PipeTarget.ToStream(ms));
+                .WithArguments("/c findstr o")
+                .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdout, Encoding.UTF8))
+                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stderr, Encoding.UTF8));
 
             CliResult result = await (command1 | command2).ExecuteAsync();
-            string output = Encoding.UTF8.GetString(array);
 
-            Console.WriteLine("STDOUT: " + output);
+            Console.WriteLine("STDOUT: " + stdout.ToString());
+            Console.WriteLine("STDERR: " + stderr.ToString());
             Console.WriteLine("ExitCode is " + result.ExitCode);
         });
 
