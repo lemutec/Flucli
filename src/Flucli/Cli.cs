@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Flucli.Utils;
+using Flucli.Utils.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -405,7 +407,7 @@ public class Cli : ICli
         PipeSource.FromStream(source) | target;
 
     public static Cli operator |(Cli source, Cli target) =>
-        PipeSource.FromCommandLine(source) | target;
+        PipeSource.FromCli(source) | target;
 }
 
 public interface ICli

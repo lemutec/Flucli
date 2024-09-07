@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security;
 
-namespace Flucli;
+namespace Flucli.Utils.Extensions;
 
 public static class ArgumentExtension
 {

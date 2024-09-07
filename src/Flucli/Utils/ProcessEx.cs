@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Flucli;
+namespace Flucli.Utils;
 
 internal sealed class ProcessEx(ProcessStartInfo startInfo) : IDisposable
 {

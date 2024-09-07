@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Flucli;
+namespace Flucli.Utils.Extensions;
 
 internal static class TaskExtensions
 {
