@@ -44,7 +44,33 @@ public static class ArgumentExtension
 
     public static string ToArguments(this IEnumerable<string> cli)
     {
-        return string.Join(" ", cli?.Select(arg => (arg?.Contains(' ') ?? false) ? $"\"{arg}\"" : arg) ?? []);
+        return string.Join(" ", cli?.Select(arg => arg.ToQuoteMarkArguments()) ?? []);
+    }
+
+    public static string ToQuoteMarkArguments(this string arg, QuoteRepalce quoteType = QuoteRepalce.None)
+    {
+        if (string.IsNullOrEmpty(arg))
+        {
+            return arg;
+        }
+
+        switch (quoteType)
+        {
+            case QuoteRepalce.DoubleQuote:
+                arg = arg.Replace("\"", "\"\"");
+                break;
+
+            case QuoteRepalce.BackSlashQuote:
+                arg = arg.Replace("\"", "\\\"");
+                break;
+        }
+
+        if (!(arg.StartsWith("\"") && arg.EndsWith("\"")) // If the argument is not already quoted
+           && arg.Contains(' ') || arg.Contains('\"'))    // And if the argument contains spaces or quotes
+        {
+            arg = $"\"{arg}\"";
+        }
+        return arg;
     }
 
     public static SecureString ToSecureString(this string str)
@@ -57,5 +83,12 @@ public static class ArgumentExtension
         }
         secureString.MakeReadOnly();
         return secureString;
+    }
+
+    public enum QuoteRepalce
+    {
+        None,
+        DoubleQuote,
+        BackSlashQuote,
     }
 }
