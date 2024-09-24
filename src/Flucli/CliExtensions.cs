@@ -23,8 +23,8 @@ public static class CliExtensions
 
     public static Cli ParseCli(this string cli)
     {
-        cli = cli.Trim();
-
+        // The command string containing | is uncommon.
+        // If necessary, please do not use this parse method.
         if (cli.Contains("|"))
         {
             IEnumerable<string> clis = cli.Split('|');

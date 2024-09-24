@@ -10,6 +10,16 @@ internal class Program
         {
             Console.WriteLine("CASE1");
             {
+                CliResult result = await "cmd"
+                    .WithArguments("/c echo Hello World!")
+                    .ExecuteAsync();
+
+                Console.WriteLine("ExitCode is " + result.ExitCode);
+            }
+            Console.WriteLine("---");
+
+            Console.WriteLine("CASE2");
+            {
                 StringBuilder stdout = new();
                 StringBuilder stderr = new();
 
@@ -29,7 +39,7 @@ internal class Program
             }
             Console.WriteLine("---");
 
-            Console.WriteLine("CASE2");
+            Console.WriteLine("CASE3");
             {
                 StringBuilder stdout = new();
                 StringBuilder stderr = new();
