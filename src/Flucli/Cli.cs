@@ -67,6 +67,44 @@ public class Cli : ICli
     public PipeTarget _standardErrorPipe = PipeTarget.Null;
     public PipeTarget StandardErrorPipe => _standardErrorPipe;
 
+    /// <summary>
+    /// Only stock the cli parse result from <see cref="CliExtensions.ParseCli"/> here.
+    /// **No automatic execution of pipe.**
+    /// **You have to run it by yourself.**
+    /// </summary>
+    public Cli PipeTo { get; set; } = null!;
+
+    public Cli PipeTail
+    {
+        get
+        {
+            Cli current = this;
+            while (current != null && current.PipeTo != null)
+            {
+                current = current.PipeTo;
+            }
+            return current!;
+        }
+    }
+
+    /// <summary>
+    /// Only stock the cli parse result from <see cref="CliExtensions.ParseCli"/> here.
+    /// </summary>
+    public Cli PipeFrom { get; set; } = null!;
+
+    public Cli PipeHeader
+    {
+        get
+        {
+            Cli current = this;
+            while (current != null && current.PipeFrom != null)
+            {
+                current = current.PipeFrom;
+            }
+            return current!;
+        }
+    }
+
     public Cli() : this(default(string)!)
     {
     }
@@ -220,15 +258,29 @@ public class Cli : ICli
         return this;
     }
 
-    public Task<CliResult> ExecuteAsync(CancellationToken cancellationToken = default) =>
-        ExecuteAsync(cancellationToken, CancellationToken.None);
+    public async Task<CliResult> ExecutePipeAsync(CancellationToken cancellationToken = default)
+    {
+        Cli current = this;
+        Cli compositeCli = current;
 
-    public Task<CliResult> ExecuteAsync(CancellationToken forcefulCancellationToken, CancellationToken gracefulCancellationToken)
+        while (current.PipeTo != null)
+        {
+            compositeCli = compositeCli | current.PipeTo;
+            current = current.PipeTo;
+        }
+
+        return await compositeCli.ExecuteAsync(cancellationToken);
+    }
+
+    public async Task<CliResult> ExecuteAsync(CancellationToken cancellationToken = default) =>
+        await ExecuteAsync(cancellationToken, CancellationToken.None);
+
+    public async Task<CliResult> ExecuteAsync(CancellationToken forcefulCancellationToken, CancellationToken gracefulCancellationToken)
     {
         ProcessEx process = new(CreateStartInfo());
 
         process.Start();
-        return ExecuteAsync(process, forcefulCancellationToken, gracefulCancellationToken);
+        return await ExecuteAsync(process, forcefulCancellationToken, gracefulCancellationToken);
     }
 
     private async Task<CliResult> ExecuteAsync(ProcessEx process, CancellationToken forcefulCancellationToken = default, CancellationToken gracefulCancellationToken = default)
@@ -392,7 +444,19 @@ public class Cli : ICli
         return startInfo;
     }
 
-    public override string ToString() => $"{FileName} {Arguments}";
+    /// <summary>
+    /// Only return the command line string
+    /// </summary>
+    /// <returns>cli</returns>
+    public override string ToString()
+    {
+        if (PipeTo != null)
+        {
+            return $"{FileName.ToQuoteMarkArguments()} {Arguments} | {PipeTo}";
+        }
+
+        return $"{FileName.ToQuoteMarkArguments()} {Arguments}";
+    }
 
     public static Cli operator |(Cli source, PipeTarget target)
         => source.WithStandardOutputPipe(target);

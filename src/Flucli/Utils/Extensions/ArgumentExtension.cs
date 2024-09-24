@@ -73,6 +73,24 @@ public static class ArgumentExtension
         return arg;
     }
 
+    public static (string, IEnumerable<string>) ToFileNameWithArguments(this string cli)
+    {
+        IEnumerable<string> args = cli.ToArguments();
+
+        if (args.Count() == 0)
+        {
+            return (cli, []);
+        }
+        else if (args.Count() == 1)
+        {
+            return (args.First(), []);
+        }
+        else
+        {
+            return (args.First(), args.Skip(1));
+        }
+    }
+
     public static SecureString ToSecureString(this string str)
     {
         SecureString secureString = new();
