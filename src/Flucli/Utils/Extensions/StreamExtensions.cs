@@ -7,6 +7,13 @@ namespace Flucli.Utils.Extensions;
 
 internal static class StreamExtensions
 {
+    /// <summary>
+    /// Asynchronously copies data from a source stream to a destination stream with an optional auto-flush feature.
+    /// </summary>
+    /// <param name="source">The source stream to read data from.</param>
+    /// <param name="destination">The destination stream to write data to.</param>
+    /// <param name="autoFlush">Whether to flush the destination stream after each write operation.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     public static async Task CopyToAsync(this Stream source, Stream destination, bool autoFlush, CancellationToken cancellationToken = default)
     {
         byte[] buffer = new byte[BufferSizes.Stream];
@@ -33,6 +40,12 @@ internal static class StreamExtensions
         }
     }
 
+    /// <summary>
+    /// Asynchronously copies data from a source stream to a destination stream without auto-flush.
+    /// </summary>
+    /// <param name="source">The source stream to read data from.</param>
+    /// <param name="destination">The destination stream to write data to.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     public static async Task CopyToAsync(this Stream source, Stream destination, CancellationToken cancellationToken)
     {
         byte[] buffer = new byte[BufferSizes.Stream];
@@ -45,6 +58,15 @@ internal static class StreamExtensions
         }
     }
 
+    /// <summary>
+    /// Asynchronously reads a specified number of characters from a StreamReader into a buffer.
+    /// </summary>
+    /// <param name="reader">The StreamReader to read from.</param>
+    /// <param name="buffer">The character array buffer to store read characters.</param>
+    /// <param name="index">The starting index in the buffer to begin storing read characters.</param>
+    /// <param name="count">The maximum number of characters to read.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The total number of characters read.</returns>
     public static async Task<int> ReadAsync(this StreamReader reader, char[] buffer, int index, int count, CancellationToken cancellationToken = default)
     {
         _ = reader ?? throw new ArgumentNullException(nameof(reader));

@@ -1,5 +1,5 @@
-﻿using System.Text;
-using System.Text.Unicode;
+﻿using Flucli.Utils.Extensions;
+using System.Text;
 
 namespace Flucli.Test;
 
@@ -7,12 +7,15 @@ internal class Program
 {
     static void Main(string[] args)
     {
+        string[] _ = "explorer.exe /select,\"C:\\Windows\\explorer.exe\""
+            .ToArguments().ToArray();
+
         Task.Run(async () =>
         {
             // ---
             Console.WriteLine("CASE1");
             {
-                CliResult result = await @"D:\ema\utils\DouyinLiveRecorder\DouyinLiveRecorder.v3.0.8\DouyinLiveRecorder.exe"
+                CliResult result = await @"test.exe"
                     .WithArguments("")
                     .WithStandardErrorPipe(PipeTarget.ToDelegate((a) =>
                     {
