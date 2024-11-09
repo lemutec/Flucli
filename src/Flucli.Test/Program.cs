@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Unicode;
 
 namespace Flucli.Test;
 
@@ -8,7 +9,24 @@ internal class Program
     {
         Task.Run(async () =>
         {
+            // ---
             Console.WriteLine("CASE1");
+            {
+                CliResult result = await @"D:\ema\utils\DouyinLiveRecorder\DouyinLiveRecorder.v3.0.8\DouyinLiveRecorder.exe"
+                    .WithArguments("")
+                    .WithStandardErrorPipe(PipeTarget.ToDelegate((a) =>
+                    {
+                        Console.WriteLine(a);
+                    }, Encoding.UTF8))
+                    .ExecuteAsync();
+
+                Console.WriteLine("ExitCode is " + result.ExitCode);
+            }
+            Console.ReadLine();
+            Console.WriteLine("---");
+
+            // ---
+            Console.WriteLine("CASE2");
             {
                 CliResult result = await "cmd"
                     .WithArguments("/c echo Hello World!")
@@ -18,7 +36,8 @@ internal class Program
             }
             Console.WriteLine("---");
 
-            Console.WriteLine("CASE2");
+            // ---
+            Console.WriteLine("CASE3");
             {
                 StringBuilder stdout = new();
                 StringBuilder stderr = new();
@@ -39,7 +58,8 @@ internal class Program
             }
             Console.WriteLine("---");
 
-            Console.WriteLine("CASE3");
+            // ---
+            Console.WriteLine("CASE4");
             {
                 StringBuilder stdout = new();
                 StringBuilder stderr = new();
