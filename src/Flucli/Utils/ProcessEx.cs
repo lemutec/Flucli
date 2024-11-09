@@ -15,6 +15,8 @@ internal sealed class ProcessEx(ProcessStartInfo startInfo) : IDisposable
     private readonly TaskCompletionSource<object?> _exitTcs =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
 
+    public Process NativeProcess => _nativeProcess;
+
     public int Id => _nativeProcess.Id;
 
     public string Name =>

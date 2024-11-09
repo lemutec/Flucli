@@ -272,12 +272,29 @@ public class Cli : ICli
         return await compositeCli.ExecuteAsync(cancellationToken);
     }
 
+    public Process Execute()
+    {
+        ProcessEx process = new(CreateStartInfo());
+
+        process.Start();
+        return process.NativeProcess;
+    }
+
+    public CliResult ExecuteSync()
+    {
+        using ProcessEx process = new(CreateStartInfo());
+
+        process.Start();
+        process.NativeProcess.WaitForExit();
+        return new CliResult(process.ExitCode, process.StartTime, process.ExitTime);
+    }
+
     public async Task<CliResult> ExecuteAsync(CancellationToken cancellationToken = default) =>
         await ExecuteAsync(cancellationToken, CancellationToken.None);
 
     public async Task<CliResult> ExecuteAsync(CancellationToken forcefulCancellationToken, CancellationToken gracefulCancellationToken)
     {
-        ProcessEx process = new(CreateStartInfo());
+        using ProcessEx process = new(CreateStartInfo());
 
         process.Start();
         return await ExecuteAsync(process, forcefulCancellationToken, gracefulCancellationToken);
