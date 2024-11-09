@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security;
+using System.Text;
 
 namespace Flucli.Utils.Extensions;
 
@@ -9,7 +10,7 @@ public static class ArgumentExtension
     public static IEnumerable<string> ToArguments(this string cli)
     {
         List<string> args = [];
-        string currentArg = string.Empty;
+        StringBuilder currentArg = new();
         bool inQuotes = false;
 
         for (int i = 0; i < cli.Length; i++)
@@ -19,24 +20,25 @@ public static class ArgumentExtension
             if (c == '"')
             {
                 inQuotes = !inQuotes;
+                currentArg.Append(c);
             }
             else if (c == ' ' && !inQuotes)
             {
-                if (currentArg != string.Empty)
+                if (currentArg.Length > 0)
                 {
-                    args.Add(currentArg);
-                    currentArg = string.Empty;
+                    args.Add(currentArg.ToString());
+                    currentArg.Clear();
                 }
             }
             else
             {
-                currentArg += c;
+                currentArg.Append(c);
             }
         }
 
-        if (currentArg != string.Empty)
+        if (currentArg.Length > 0)
         {
-            args.Add(currentArg);
+            args.Add(currentArg.ToString());
         }
 
         return args;
