@@ -47,7 +47,7 @@ public static class ArgumentExtension
         return string.Join(" ", cli?.Select(arg => arg.ToQuoteMarkArguments()) ?? []);
     }
 
-    public static string ToQuoteMarkArguments(this string arg, QuoteRepalce quoteType = QuoteRepalce.None)
+    public static string ToQuoteMarkArguments(this string arg, QuoteReplace quoteType = QuoteReplace.None)
     {
         if (string.IsNullOrEmpty(arg))
         {
@@ -56,11 +56,11 @@ public static class ArgumentExtension
 
         switch (quoteType)
         {
-            case QuoteRepalce.DoubleQuote:
+            case QuoteReplace.DoubleQuote:
                 arg = arg.Replace("\"", "\"\"");
                 break;
 
-            case QuoteRepalce.BackSlashQuote:
+            case QuoteReplace.BackSlashQuote:
                 arg = arg.Replace("\"", "\\\"");
                 break;
         }
@@ -103,7 +103,7 @@ public static class ArgumentExtension
         return secureString;
     }
 
-    public enum QuoteRepalce
+    public enum QuoteReplace
     {
         None,
         DoubleQuote,
