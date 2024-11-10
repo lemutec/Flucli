@@ -469,10 +469,10 @@ public class Cli : ICli
     {
         if (PipeTo != null)
         {
-            return $"{FileName.ToQuoteMarkArguments()} {Arguments} | {PipeTo}";
+            return $"{FileName.ToArguments()} {Arguments} | {PipeTo}";
         }
 
-        return $"{FileName.ToQuoteMarkArguments()} {Arguments}";
+        return $"{FileName.ToArguments()} {Arguments}";
     }
 
     public static Cli operator |(Cli source, PipeTarget target)

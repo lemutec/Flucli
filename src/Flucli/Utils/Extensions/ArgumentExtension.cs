@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -62,40 +63,52 @@ public static class ArgumentExtension
     /// Joins a collection of arguments into a single command-line string, quoting arguments as needed.
     /// </summary>
     /// <param name="cli">The arguments to join into a command-line string.</param>
+    /// <param name="option"></param>
     /// <returns>A single string representing the command-line.</returns>
-    public static string ToArguments(this IEnumerable<string> cli)
+    public static string ToArguments(this IEnumerable<string> cli, ArgumentBuilderOption? option = null)
     {
-        return string.Join(" ", cli?.Select(arg => arg.ToQuoteMarkArguments()) ?? []);
+        option ??= ArgumentBuilderOption.Default;
+
+        return string.Join(option.Separator, cli?.Select(arg => arg.ToArguments(option)) ?? []);
     }
 
     /// <summary>
     /// Adds quotes to an argument string if necessary, with options for handling existing quotes.
     /// </summary>
     /// <param name="arg">The argument string to process.</param>
-    /// <param name="quoteType">Specifies how to handle existing quotes within the argument.</param>
+    /// <param name="option"></param>
     /// <returns>The argument string, possibly with added quotes.</returns>
-    public static string ToQuoteMarkArguments(this string arg, QuoteReplace quoteType = QuoteReplace.None)
+    public static string ToArguments(this string arg, ArgumentBuilderOption? option = null)
     {
         if (string.IsNullOrEmpty(arg))
         {
             return arg;
         }
 
-        switch (quoteType)
+        option ??= ArgumentBuilderOption.Default;
+
+        string quote = ArgumentBuilderOption.Quote;
+
+        switch (option.QuoteReplace)
         {
             case QuoteReplace.DoubleQuote:
-                arg = arg.Replace("\"", "\"\"");
+                arg = arg.Replace(ArgumentBuilderOption.Quote, ArgumentBuilderOption.DoubleQuote);
+                quote = ArgumentBuilderOption.DoubleQuote;
                 break;
 
             case QuoteReplace.BackSlashQuote:
-                arg = arg.Replace("\"", "\\\"");
+                arg = arg.Replace(ArgumentBuilderOption.Quote, ArgumentBuilderOption.BackSlashQuote);
+                quote = ArgumentBuilderOption.BackSlashQuote;
                 break;
         }
 
-        if (!(arg.StartsWith("\"") && arg.EndsWith("\"")) // If the argument is not already quoted
-           && arg.Contains(' ') || arg.Contains('\"'))    // And if the argument contains spaces or quotes
+        // If the argument is not already quoted
+        // if the argument contains spaces
+        // If the argument is a valid URI
+        if ((!(arg.StartsWith(quote) && arg.EndsWith(quote)) && arg.Contains(' '))
+           || (option.IsQuoteScheme && Uri.TryCreate(arg, UriKind.Absolute, out _)))
         {
-            arg = $"\"{arg}\"";
+            arg = quote + arg + quote;
         }
         return arg;
     }
@@ -109,18 +122,12 @@ public static class ArgumentExtension
     {
         IEnumerable<string> args = cli.ToArguments();
 
-        if (args.Count() == 0)
+        return args.Count() switch
         {
-            return (cli, []);
-        }
-        else if (args.Count() == 1)
-        {
-            return (args.First(), []);
-        }
-        else
-        {
-            return (args.First(), args.Skip(1));
-        }
+            0 => (cli, []),
+            1 => (args.First(), []),
+            _ => (args.First(), args.Skip(1)),
+        };
     }
 
     /// <summary>
@@ -138,26 +145,5 @@ public static class ArgumentExtension
         }
         secureString.MakeReadOnly();
         return secureString;
-    }
-
-    /// <summary>
-    /// Options for handling quotes within argument strings.
-    /// </summary>
-    public enum QuoteReplace
-    {
-        /// <summary>
-        /// No special handling for quotes
-        /// </summary>
-        None,
-
-        /// <summary>
-        /// Replace each quote with two quotes
-        /// </summary>
-        DoubleQuote,
-
-        /// <summary>
-        /// Escape each quote with a backslash
-        /// </summary>
-        BackSlashQuote,
     }
 }

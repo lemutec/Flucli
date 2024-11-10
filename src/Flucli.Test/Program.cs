@@ -7,8 +7,23 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        string[] _ = "explorer.exe /select,\"C:\\Windows\\explorer.exe\""
-            .ToArguments().ToArray();
+        // Argument parser
+        {
+            // Output: explorer.exe, /select,"C:\Windows\explorer.exe"
+            string[] _1 = "explorer.exe /select,\"C:\\Windows\\explorer.exe\""
+                .ToArguments().ToArray();
+
+            string _2 = new string[]
+            {
+                "https://test.com",
+                "\"https://test.com\"",
+                "https://",
+                "https:/",
+                "https:",
+                "https",
+                "/select,\"C:\\Windows\\explorer.exe\"",
+            }.ToArguments();
+        }
 
         Task.Run(async () =>
         {
